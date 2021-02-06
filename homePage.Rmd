@@ -1,0 +1,64 @@
+---
+title: "Southwest U.S. Station Climate Summaries"
+author: ''
+date: ''
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r results='asis', echo=FALSE}
+cat(paste0("**Updated: ", noquote(format(Sys.time(), "%m-%d-%Y")),"**"))
+```
+
+The southwest U.S. has a unique seasonal-transition climate characterized by distinct wet and dry seasons that emerge throughout the annual cycle. In Arizona and New Mexico the annual pattern of precipitation is largely defined by the dramatic onset of the summer monsoon thunderstorm activity in late June that persists through late September and the gradual onset of winter storms in late October that can persist through late spring. Typical drought monitoring products or seasonal climate summaries report totals and averages with respect to precipitation, but often fail to capture the subtle shifts in the timing, type, intensity and frequency of precipitation events as well as associated temperature variability that can create drought impacts. These station-level climate summary plots work to present many different variables that can be calculated from daily precipitation and temperature observations to depict sometimes subtle variations climate that can occur across the southwest U.S.
+
+Real-time and historical plots are available for over 100 Global Historical Climate Network (GHCN) stations across Arizona and New Mexico. Summary pages with real-time metrics and plots for four different time periods are available here:
+
+<div class = "row">
+<div class = "col-md-6">
+
+*  [**Water-year (October-September)**](waterYear/current.html)
+*  [**Calendar-year (January-December)**](calYear/current.html)
+*  [**Cool-season (October 1st-June 14th)**](coolSeas/current.html)
+*  [**Monsoon-season (June 15th-September 30th)**](monsoon/current.html)
+</div>
+<div class = "col-md-6">
+
+![](plots/plot.png)
+</div> 
+  
+<div style="margin-bottom:300px;">
+</div>
+
+
+------
+
+
+<div align="center">
+
+```{r  out.width = "20%", echo=FALSE}
+knitr::include_graphics("plots/coop2.jpg") 
+```
+
+  <em>[Climate Science Applications Program - University of Arizona Cooperative Extension](http://cals.arizona.edu/climate/)</em>
+
+[![Latest](plots/GitHub-Mark-32px.png)](https://github.com/mcrimmins/stationPlots)
+<em>[https://github.com/mcrimmins/stationPlots](https://github.com/mcrimmins/stationPlots)</em>
+
+</div>
+
+  
+------
+<div align="center">
+  <h6>
+  Last Updated: "`r format(Sys.time(), '%m-%d-%Y')`"© 2020 The Arizona Board of Regents. All contents copyrighted. All rights reserved.</h6>
+</div>
+
+
+
+
+

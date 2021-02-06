@@ -152,6 +152,24 @@ stationThin$lat[idx]<-temp$lat
 stationThin$lon[idx]<-temp$long
 
 # final station ID - manually add/delete to this list as well
+# load existing station list
 stationThin<-stationThin[,c("names","lat","lon","V1","contigYr1","contigYr2")]
 
 save(stationThin, file="stationList.RData")
+
+# manually add stations - info from https://wrcc.dri.edu/coopmap/#
+load("~/RProjects/StationPlots/stationList.RData")
+stationThin$names<-as.character(stationThin$names)
+stationThin$V1<-as.character(stationThin$V1)
+
+  # station info
+  newrow<-c("KARTCHNER CAVERNS",31.83528,-110.35528, "024534", 2008,2020)
+  # bind to dataframe
+  stationThin<-rbind.data.frame(stationThin,newrow)
+  # fix var types
+  vars<-c(2,3,5,6)
+  stationThin[ , vars] <- apply(stationThin[ , vars], 2,            # Specify own function within apply
+                      function(x) as.numeric(as.character(x)))
+  
+  save(stationThin, file="stationList.RData")
+  

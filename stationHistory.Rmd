@@ -2,44 +2,75 @@
 title: "`r markdownTitle`"
 author: ''
 date: ''
-output:
-  html_document: default
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 ## {.tabset .tabset-fade}
-Test about stations, include map 
 
 <div align="center">
-### Precip
+### Precipitation
 ```{r,results='asis', echo=FALSE}
-library(rbokeh)
-      figure(width = 800, height = 400) %>%
-        ly_bar(as.factor(Year), 'Total Precip (in)', data = tempTable, hover = TRUE, fill_color="green") %>%
-        theme_axis("x", major_label_orientation = 90)
+library(plotly)
+  p1<-ggplot(tempTable, aes(x=Year,y=`Total Precip (in)`, fill=`Missing Precip (days)`))+
+        geom_bar(stat = 'identity',show.legend = FALSE)+
+        scale_fill_gradient(low = "green4", high = "red")+
+        geom_hline(yintercept = mean(tempTable$`Total Precip (in)`))
+        
+      ggplotly(p1)
 ```
+(Color indicates number of missing days, horizontal line is long-term mean)
 
-### Temp 
+
+### Temperature 
 ```{r,results='asis', echo=FALSE}
-library(rbokeh)
-      figure(width = 800, height = 400) %>%
-        #ly_lines(Year, 'Avg Temp (F)', data = tempTable, color="orange") %>%
-        ly_points(Year, 'Avg Temp (F)', data = tempTable, hover = TRUE, fill_color="red") %>%
-        theme_axis("x", major_label_orientation = 90)
+  p2<-ggplot(tempTable, aes(x=Year,y=`Avg Temp (F)`))+
+        geom_line()+
+        geom_point(aes(color=`Missing Temp (days)`),show.legend = FALSE)+
+        scale_color_gradient(low = "yellow", high = "red")+
+        geom_hline(yintercept = mean(tempTable$`Avg Temp (F)`))
+      ggplotly(p2)
+```
+(Color indicates number of missing days, horizontal line is long-term mean)
+
+### Station Map
+```{r,results='asis', echo=FALSE}
+library(leaflet)
+leaflet(width="100%") %>% addProviderTiles(providers$Esri.DeLorme) %>%
+  setView(stationLatLon$lon, stationLatLon$lat, zoom = 8) %>%
+  addMarkers(lng=stationLatLon$lon, lat=stationLatLon$lat, popup=stationName)
 ```
 </div>
 
 ------
+```{r,results='asis', echo=FALSE}
+kable(tempMean, caption="Period of Record Averages")
+```
+------
 
-#### Table of years
-
+## {.tabset .tabset-fade}
 
 <div align="center">
+### Summary Stats
 ```{r,results='asis', echo=FALSE}
 library(DT)
-datatable(tempTable, class = 'cell-border compact stripe', escape = FALSE)
+datatable(tempTable, class = 'cell-border compact stripe', escape = FALSE, rownames = FALSE)
 ```
+
+### Anomalies
+```{r,results='asis', echo=FALSE}
+datatable(tempAnom, class = 'cell-border compact stripe', escape = FALSE, rownames = FALSE)
+```
+
 </div>
+
+
+------
+add in links to other seasons and main page
+
+
+
