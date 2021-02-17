@@ -13,20 +13,21 @@ knitr::opts_chunk$set(echo = TRUE)
 ## {.tabset .tabset-fade}
 
 <div align="center">
-### Precipitation
+### Total Precipitation by Year
 ```{r,results='asis', echo=FALSE}
-library(plotly)
+
   p1<-ggplot(tempTable, aes(x=Year,y=`Total Precip (in)`, fill=`Missing Precip (days)`))+
         geom_bar(stat = 'identity',show.legend = FALSE)+
-        scale_fill_gradient(low = "green4", high = "red")+
+        scale_fill_gradient(low = "#004529", high = "#addd8e")+
         geom_hline(yintercept = mean(tempTable$`Total Precip (in)`))
         
       ggplotly(p1)
 ```
+Total Precipitation by Year (Seasonal or Annual/Water Year)  
 (Color indicates number of missing days, horizontal line is long-term mean)
 
 
-### Temperature 
+### Avg Temperature by Year
 ```{r,results='asis', echo=FALSE}
   p2<-ggplot(tempTable, aes(x=Year,y=`Avg Temp (F)`))+
         geom_line()+
@@ -35,11 +36,22 @@ library(plotly)
         geom_hline(yintercept = mean(tempTable$`Avg Temp (F)`))
       ggplotly(p2)
 ```
+Average Temperature by Year (Seasonal or Annual/Water Year)  
 (Color indicates number of missing days, horizontal line is long-term mean)
+
+### Daily Cumulative Precip
+```{r,results='asis', echo=FALSE}
+    ggplotly(pCum)
+```
+CAUTION: Cumulative totals in some years may include missing days and be artificially low
+
+### Daily Min/Max Temps
+```{r,results='asis', echo=FALSE}
+    ggplotly(pTemps)
+```
 
 ### Station Map
 ```{r,results='asis', echo=FALSE}
-library(leaflet)
 leaflet(width="100%") %>% addProviderTiles(providers$Esri.DeLorme) %>%
   setView(stationLatLon$lon, stationLatLon$lat, zoom = 8) %>%
   addMarkers(lng=stationLatLon$lon, lat=stationLatLon$lat, popup=stationName)
@@ -57,7 +69,6 @@ kable(tempMean, caption="Period of Record Averages")
 <div align="center">
 ### Summary Stats
 ```{r,results='asis', echo=FALSE}
-library(DT)
 datatable(tempTable, class = 'cell-border compact stripe', escape = FALSE, rownames = FALSE)
 ```
 
@@ -68,9 +79,18 @@ datatable(tempAnom, class = 'cell-border compact stripe', escape = FALSE, rownam
 
 </div>
 
-
 ------
-add in links to other seasons and main page
+<div align="center">
+  [Return to main page](https://cals.arizona.edu/climate/misc/stations/index.html)
+</div>
 
+<div align="center">
+  <em>[Climate Science Applications Program - University of Arizona Cooperative Extension](http://cals.arizona.edu/climate/)</em>
+</div>
+
+<div align="center">
+  <h6>
+  Last Updated: "`r format(Sys.time(), '%m-%d-%Y')`"© 2020 The Arizona Board of Regents. All contents copyrighted. All rights reserved.</h6>
+</div>
 
 

@@ -1,0 +1,48 @@
+---
+title: "Guide to Southwest U.S. Station Climate Summaries"
+author: ''
+date: ''
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r  out.width = "100%", echo=FALSE,fig.align="center"}
+include_graphics('plots/plot_interpretation_guide.png') 
+```
+
+<b>Timing of precip events/totals:</b> These horizontal bars represent the average (top) and current year (bottom) timing of cumulative precipitation amounts. The first segment of the bar represents the timing of when 25% of the seasonal total has occurred relative to the date axis at the bottom of the plot. The middle and last segment represent the timing of the 50% and 75% cumulative totals respectively. The inverted red triangles represent the timing of the first and last precipitation events within the season as well.  
+
+<b>Station information:</b> The text block at the upper right hand provides information on the station including elevation and period of record used in calculation of climatological values. The ‘Precip rank’ and ‘Temp rank’ represent the rank order of the current year’s total precipitation and average temperature in the historical record. The rank is ordered with ‘1’ being the wettest for precipitation and warmest for temperature. The number of missing days in the current year and total observed snow is also listed in the station information block.  
+
+<b>Daily total and cumulative seasonal/annual precipitation:</b> The main center part of the figure shows daily precipitation activity (blue bars) as well as cumulative total precipitation total precipitation (blue line). The long-term average of cumulative daily precipitation is shown with the black line. If the cumulative amount is above the long-term average the fill is green and brown if it is below the average line. Daily observations are flagged with different symbols in this plot: red asterisk ~ missing observation, light blue asterisk ~ snow observation, orange diamond ~ daily record max precipitation observation (total count displayed in the lower right corner) from period of record.  
+
+<b>Similar years:</b> The inset box in the cumulative precipitation plot shows the cumulative precipitation for the current year as well as two other years with the closest matching cumulative precipitation patterns. The similarity is determined by the minimum Euclidean distance of cumulative precipitation pattterns between the current year and all other years in the historical record for the station.  
+
+<b>ONI (Oceanic Niño Index):</b> This value is the seasonal/annual average ONI calculated from monthly values. For example, the ONI value on a ‘Cool Season’ plot would be the average of monthly ONI values from October-May. Strongly negative values would indicate El Nino conditions while positive are La Nina conditions. ONI data are accessed from NOAA-CPC (https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/detrend.nino34.ascii.txt)  
+
+<b>Precip/Rain Days/Intensity Plots:</b> These bar plots indicate the total seasonal precipitation, number of rain days (days>0.01” precipitation), and average intensity (total precipitation divided by number of rain days). The values are either for the whole season if the year is complete or through the most recent update day. The red lines indicate the long-term seasonal average values for each metric.  
+
+<b>Precip events:</b> Observed precipitation events within the season are categorized into three intensity categories (light, moderate, and heavy) based on terciles from the historical distribution of all precipitation days in the period of record. The bar plots indicate the count of days that fall into each of these categories and the labels on the bars indicate the range of values for each tercile. The counts are either for the whole season if the year is complete or through the most recent update day.  
+
+<b>Dry spells:</b> The number of days between precipitation events are summarized as ‘dry spells’. The average length is the average number of days between events in the current season while the ‘avg’ value in parentheses indicates the long-term average dry spell length. The maximum length is the longest run of days between precipitation events within the current season while the ‘avg’ value in parentheses is the long-term average.  These dry spell values are either for the whole season if the year is complete or through the most recent update day.  
+
+<b>Daily temperatures:</b> Daily minimum and maximum temperatures are displayed as yellow bars with the top indicating the observed maximum and the bottom the minimum daily temperature. The thick red and blue lines indicate the long-term average daily min/max while the thin red and blue lines depict the record high and low for each day. Daily records are flagged with red (T-max) and blue (T-min) diamonds with total counts for each displayed in the upper/lower right corner. A running count of freezing events is also tallied at the bottom with the long-term average count displayed in parentheses. The seasonal average min/mean/max are displayed as bar plots in the lower right corner with average values indicated as the orange line at the mid-point. 
+
+------
+<div align="center">
+  [Return to main page](https://cals.arizona.edu/climate/misc/stations/index.html)
+</div>
+
+<div align="center">
+  <em>[Climate Science Applications Program - University of Arizona Cooperative Extension](http://cals.arizona.edu/climate/)</em>
+</div>
+
+<div align="center">
+  <h6>
+  Last Updated: "`r format(Sys.time(), '%m-%d-%Y')`"© 2020 The Arizona Board of Regents. All contents copyrighted. All rights reserved.</h6>
+</div>
+

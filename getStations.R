@@ -171,5 +171,13 @@ stationThin$V1<-as.character(stationThin$V1)
   stationThin[ , vars] <- apply(stationThin[ , vars], 2,            # Specify own function within apply
                       function(x) as.numeric(as.character(x)))
   
+  
+  # check for #, remove
+  stationThin$names<-gsub("#","",stationThin$names)
+  
+  # remove row if needed
+  #stationThin<-stationThin[-108,]
+  
+  # resave to file
   save(stationThin, file="stationList.RData")
   

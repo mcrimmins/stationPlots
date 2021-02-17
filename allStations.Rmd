@@ -1,41 +1,32 @@
 ---
-title: "`r pageTitle`"
+title: "Climate Summaries by Station"
 author: ''
 date: ''
 output: html_document
 ---
+
+Click on markers on map or on links in table below to access station summary pages. These pages will have current plots as well as access to historical data from the period of record for each station.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r,results='asis', echo=FALSE}
-library(leaflet)
 leaflet(width="100%") %>% addProviderTiles(providers$Esri.DeLorme, options = providerTileOptions(minZoom = 6)) %>%
   #addMarkers(lng=stationThin$lon, lat=stationThin$lat, popup=stationThin$names,
   #           labelOptions = labelOptions(noHide = T))
-  addCircleMarkers(leafletTable$lon, leafletTable$lat,
-                   radius = 8,
-                   color = "black",
-                   fillColor =  pal(leafletTable$`Total Precip (in)`),
-                   fillOpacity = 0.8,
-                   popup = lapply(stnLabs, htmltools::HTML),
-                   label = lapply(stnLabs, htmltools::HTML)
-                   ) %>%
-   addLegend("bottomright", pal = pal, values = leafletTable$`Total Precip (in)`,
-    title = "Total Precip (in)", opacity = 1)
+  addMarkers(stnlinksDF$lon, stnlinksDF$lat, popup = stnlinksDF$`Station Page Link` )
 
 ```  
-
-```{r results='asis', echo=FALSE}
-cat(paste0(' <span style="color:red"> <font size="4"> Summary period: ', format(as.Date(Date1),"%m-%d-%Y"),' through ',format(as.Date(Date2),"%m-%d-%Y"), '</font></span>'))
-```
--------
+------
 
 ```{r,results='asis', echo=FALSE}
-library(DT)
-datatable(summary, class = 'cell-border compact stripe', escape = FALSE, rownames = FALSE)
+datatable(stnlinksDF[,c(5,4)], class = 'cell-border compact stripe', escape = FALSE, rownames = FALSE)
 ```
+
+<p>&nbsp;</p>
+
+------
 
 <div align="center">
   <em>[Return to main page](https://cals.arizona.edu/climate/misc/stations/index.html)</em>

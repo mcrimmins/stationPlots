@@ -9,6 +9,9 @@ library(lubridate)
 library(cowplot)
 library(scales)
 library(magick)
+library(plotly)
+library(leaflet)
+library(DT)
 #library(grid)
 #library(gridExtra)
 
@@ -32,9 +35,9 @@ wtr_yr <- function(dates, start_month=10) {
 #perc.rank <- function(x) (x)/sum(x, na.rm = TRUE)
 
 # indices
-library(rsoi)
+#library(rsoi)
 #library(rpdo)
-enso<-download_enso()
+#enso<-download_enso()
 #pdo<-download_pdo()
 # ----
 
@@ -299,7 +302,8 @@ colnames(waterDates)[1]<-"date"
         group_by(dummyDate) %>% 
         summarise(doyX = min(doyX, na.rm = TRUE),
                   maxPrecip = max(cumPrecip,na.rm='TRUE'),
-                  minPrecip = min(cumPrecip,na.rm='TRUE'))
+                  minPrecip = min(cumPrecip,na.rm='TRUE'),
+                  maxPrecipDay = max(precip, na.rm = 'TRUE'))
       
     
     
@@ -319,6 +323,7 @@ colnames(waterDates)[1]<-"date"
         first<-last
       }
       yrList<-seq(first,last,1)
+      #yrList<-seq(beginyr,last,1)
       
       for(k in 1:length(yrList)){
           currYear<-yrList[k] # loop here for all plots
@@ -339,6 +344,8 @@ colnames(waterDates)[1]<-"date"
           currYearData$avgCumPrecip<-TEMPavgCumPrecip$meanCumPrecip
           currYearData$diffAvg<-currYearData$cumPrecip-currYearData$avgCumPrecip
           currYearData$missPrecip<-ifelse(is.na(currYearData$precip)==TRUE, 1, NA)
+          currYearData$snowDay<-ifelse(currYearData$snow>0, 0.1, NA)
+          
         # grab temp data fram for stacked precip plot  
           temp<-currYearData[,c("date","avgCumPrecip","diffAvg")]
             temp$abvAvg<-temp$diffAvg
@@ -358,15 +365,24 @@ colnames(waterDates)[1]<-"date"
           # missing data text
           missText<-paste0("(*=missing, data available through ", currYearData$date[max(which(!is.na(currYearData$precip)))],")")
          
-          # get enso oni values
+          # get enso oni values --- from download_enso function
+          # if(enso$Date[1]>=currYearData$date[1]){
+          #   oni<-"N/A"
+          #   }else if (enso$Date[nrow(enso)]<currYearData$date[nrow(currYearData)]) {
+          #   oni<-"N/A"
+          # } else {
+          #   oni<-round(mean(enso$ONI[min(which(enso$Date>=currYearData$date[1])):max(which(enso$Date<currYearData$date[nrow(currYearData)]))], na.rm = TRUE), 2)
+          # }
+         
+          # get enso oni values --- from download_enso function
           if(enso$Date[1]>=currYearData$date[1]){
             oni<-"N/A"
-            }else if (enso$Date[nrow(enso)]<currYearData$date[nrow(currYearData)]) {
+          }else if (enso$Date[nrow(enso)]<currYearData$date[nrow(currYearData)]) {
             oni<-"N/A"
           } else {
-            oni<-round(mean(enso$ONI[min(which(enso$Date>=currYearData$date[1])):max(which(enso$Date<currYearData$date[nrow(currYearData)]))], na.rm = TRUE), 2)
+            oni<-round(mean(enso$ANOM[min(which(enso$Date>=currYearData$date[1])):max(which(enso$Date<currYearData$date[nrow(currYearData)]))], na.rm = TRUE), 2)
           }
-          
+           
         # stacked bar precip plot
         pPrecip<- ggplot()+
             geom_bar(data=temp, aes(x=date,y=value, fill=as.factor(precipCat)),stat = "identity", width = 1,
@@ -397,7 +413,30 @@ colnames(waterDates)[1]<-"date"
             if(sum(currYearData$missPrecip, na.rm = TRUE)!=0){
               pPrecip<-pPrecip+ geom_point(data=currYearData, aes(date,missPrecip),shape=8, color="red", 
                                            size=1,show.legend = FALSE)
-            }    
+            }
+        # add snow dots
+            if(sum(currYearData$snow, na.rm = TRUE)!=0){
+              pPrecip<-pPrecip+ geom_point(data=currYearData, aes(date,snowDay),shape=8, color="skyblue", 
+                                           size=1,show.legend = FALSE)
+            }
+        
+        # add record precip
+        # Daily temperature plot
+        dayPrecipTEMP<-dayPrecip[1:nrow(currYearData),]
+        dayPrecipTEMP$currDate<-currYearData$date
+        # record temp marking
+          dayPrecipTEMP<-merge(dayPrecipTEMP, currYearData[,c("date","precip")], by.x="currDate",by.y="date")
+          dayPrecipTEMP$recordPPT<-NA
+          dayPrecipTEMP$recordPPT<-ifelse(dayPrecipTEMP$precip>=dayPrecipTEMP$maxPrecipDay, dayPrecipTEMP$precip, NA)
+          dayPrecipTEMP$recordPPT<-as.numeric(dayPrecipTEMP$recordPPT)
+          currYearData$recordPPT<-dayPrecipTEMP$recordPPT
+          currYearData$recordPPT[currYearData$recordPPT<0.01]<-NA 
+          pPrecip<-pPrecip+ geom_point(data=currYearData, aes(date,recordPPT),shape=18, color="orange", 
+                                       size=2,show.legend = FALSE)+
+            annotate(geom="text", x=currYearData$date[nrow(currYearData)], y=-Inf, label=length(which(!is.na(currYearData$recordPPT))),
+                     color="orange", size=3, vjust=-1.5, hjust=2)
+        ####  
+        
           # add max/min lines?
           #geom_line(data=dayPrecip, aes(currDate, maxPrecip), linetype=2)+
           #geom_line(data=dayPrecip, aes(currDate, minPrecip), linetype=2)
@@ -501,14 +540,27 @@ colnames(waterDates)[1]<-"date"
               axis.title.y = element_blank())
         
         # Daily temperature plot
-          dayTemps<-dayTemps[1:nrow(currYearData),]
-          dayTemps$currDate<-currYearData$date
+          dayTempsTEMP<-dayTemps[1:nrow(currYearData),]
+          dayTempsTEMP$currDate<-currYearData$date
+          # record temp marking
+          dayTempsTEMP<-merge(dayTempsTEMP, currYearData[,c("date","t_max","t_min")], by.x="currDate",by.y="date")
+            dayTempsTEMP$recordTmax<-NA
+            dayTempsTEMP$recordTmax<-ifelse(dayTempsTEMP$t_max>=dayTempsTEMP$maxTmax, dayTempsTEMP$maxTmax, NA)
+            dayTempsTEMP$recordTmin<-NA
+            dayTempsTEMP$recordTmin<-ifelse(dayTempsTEMP$t_min<=dayTempsTEMP$minTmin, dayTempsTEMP$minTmin, NA)
+                dayTempsTEMP$recordTmin<-as.numeric(dayTempsTEMP$recordTmin)
+                dayTempsTEMP$recordTmax<-as.numeric(dayTempsTEMP$recordTmax)
+            
         pTemp<-  ggplot()+
             geom_linerange(data=currYearData, aes(x=date, ymin=t_min, ymax=t_max),color="goldenrod2", size=1)+
-            geom_line(data=dayTemps, aes(x=currDate,y=avgTmax), color="red")+
-            geom_step(data=dayTemps, aes(x=currDate,y=maxTmax), color="red", size=0.1)+
-            geom_line(data=dayTemps, aes(x=currDate,y=avgTmin), color="blue")+
-            geom_step(data=dayTemps, aes(x=currDate,y=minTmin), color="blue", size=0.1)+
+            geom_line(data=dayTempsTEMP, aes(x=currDate,y=avgTmax), color="red")+
+            geom_step(data=dayTempsTEMP, aes(x=currDate,y=maxTmax), color="red", size=0.1)+
+            geom_line(data=dayTempsTEMP, aes(x=currDate,y=avgTmin), color="blue")+
+            geom_step(data=dayTempsTEMP, aes(x=currDate,y=minTmin), color="blue", size=0.1)+
+            # records
+            geom_point(data=dayTempsTEMP, aes(x=currDate,y=recordTmin), color="blue", shape=18, size=1.5)+
+            geom_point(data=dayTempsTEMP, aes(x=currDate,y=recordTmax), color="red", shape=18, size=1.5)+
+          
             geom_hline(yintercept=32, color='dodgerblue4', size=0.5, linetype=2)+
             scale_x_date(limits = c(currYearData$date[1],currYearData$date[nrow(currYearData)]),
                          date_breaks = "1 month", date_labels = "%b", expand = c(0, 0))+
@@ -522,6 +574,10 @@ colnames(waterDates)[1]<-"date"
                   panel.border = element_rect(colour = "black", fill=NA, size=1))+
             annotate(geom="text", x=currYearData$date[1], y=Inf, label="Daily Min/Max Temps",
                    color="black", size=3, vjust=1.5, hjust=-0.1)+
+            annotate(geom="text", x=currYearData$date[nrow(currYearData)], y=Inf, label=length(which(!is.na(dayTempsTEMP$recordTmax))),
+                   color="red", size=3, vjust=1.5, hjust=2)+
+            annotate(geom="text", x=currYearData$date[nrow(currYearData)], y=-Inf, label=length(which(!is.na(dayTempsTEMP$recordTmin))),
+                   color="blue", size=3, vjust=-1.5, hjust=2)+
             # annotate(geom="text", x=dayTemps$currDate[1]+round(nrow(dayTemps)*.05), y=dayTemps$avgTmax[1]+4, label="T-max",
             #          color="red")+
             # annotate(geom="text", x=dayTemps$currDate[1]+round(nrow(dayTemps)*.05), y=dayTemps$avgTmin[1]-4, label="T-min",
@@ -530,7 +586,7 @@ colnames(waterDates)[1]<-"date"
                      label=paste0("Freeze Days: ",as.integer(seasSummary[which(seasSummary[,1]==currYear),7]),
                                   " (Avg:",as.integer(seasMeans[1,7]),")" ),
                      color="dodgerblue4", size=3, hjust=-0.1)+
-            ylim(min(dayTemps$minTmin),max(dayTemps$maxTmax))
+            ylim(min(dayTempsTEMP$minTmin),max(dayTempsTEMP$maxTmax))
           # add records as dots
         
         # bar gauges for precip, rain days, intensity, temps...
@@ -803,7 +859,7 @@ colnames(waterDates)[1]<-"date"
       # 
       # # seasSummary table for historical station summary page
       # load test data for development
-      #load("~/RProjects/StationPlots/rmdHistoryData.RData")
+      # load("~/RProjects/StationPlots/rmdHistoryData.RData")
       
       if(updateType=="historic"){
         # ONLY INCLUDE MOST RECENT COMPLETE YEAR
@@ -816,11 +872,16 @@ colnames(waterDates)[1]<-"date"
           tempTable$`Avg Temp (F)`<-round(tempTable$`Avg Temp (F)`,1)
           tempTable$`Avg Dry Spell (days)`<-round(tempTable$`Avg Dry Spell (days)`,0)
                 
-          # create image links in table
-          tempImgLinks<-list.files(plotDir, pattern = "*.png", full.names = FALSE)
-            tempImgLinks<-tempImgLinks[1:(length(tempImgLinks)-1)]
-          tempTable$imageLinks<-paste0('<a href="',tempImgLinks,'"><img alt="Thumb" src="',tempImgLinks,'"width=150" height="70"></a>')
-          colnames(tempTable)[ncol(tempTable)]<-"Plot"
+          # create image links in table - MATCH IMAGE LINKS with YEARS IN TABLE
+          tempImgLinks<-as.data.frame(list.files(plotDir, pattern = "*.png", full.names = FALSE))
+            colnames(tempImgLinks)<-"fileName"
+            tempImgLinks$Year<-as.numeric(regmatches(tempImgLinks$fileName, regexpr("(\\d{4})(?=.([a-zA-Z]+))",tempImgLinks$fileName, perl=T)))
+            tempImgLinks$imageLinks<-paste0('<a href="',tempImgLinks$fileName,'"><img alt="Thumb" src="',tempImgLinks$fileName,'"width=150" height="70"></a>')
+            tempImgLinks<-tempImgLinks[,c("Year","imageLinks")]
+            tempTable<-merge(tempTable,tempImgLinks, by="Year")
+            #tempImgLinks<-tempImgLinks[1:(length(tempImgLinks)-1)]
+            #tempTable$imageLinks<-paste0('<a href="',tempImgLinks,'"><img alt="Thumb" src="',tempImgLinks,'"width=150" height="70"></a>')
+            colnames(tempTable)[ncol(tempTable)]<-"Plot"
           # anomaly table
           center_apply <- function(x) {
             apply(x, 2, function(y) round(y - mean(y),1))
@@ -834,6 +895,42 @@ colnames(waterDates)[1]<-"date"
           # station info
           markdownTitle<-paste0(titleType," Station Climate Summaries: ", stationName)
           #datatable(tempTable, class = 'cell-border compact stripe', escape = FALSE)
+          
+          # plotly cumulative plots
+          # subset to tempTable years
+          tempSeas<-subset(dataSeas, yearX %in%  unique(tempTable$Year))
+          tempSeas<-tempSeas[,c("yearX","doyX","cumPrecip","date","dummyDate","t_max","t_min")]
+          colnames(tempSeas)<-c("Year","Day of Year","Cumulative Precip","Date","dummyDate","T-max","T-min")
+          tempSeas$Year<-as.factor(tempSeas$Year)
+          
+            # color ramp
+            library(RColorBrewer)
+            colourCount = length(unique(tempSeas$Year))
+            getPalette = colorRampPalette(brewer.pal(9, "Set1"))
+          
+              pCum<-ggplot(tempSeas, aes(`Day of Year`,`Cumulative Precip`,color=Year, group=1,text=Date))+
+                geom_step()+
+                scale_x_continuous(breaks=seq(0,nrow(tempSeas),15),
+                                   labels=format(seq.Date(tempSeas$dummyDate[1],tempSeas$dummyDate[1]+nrow(tempSeas),by="15 days"),"%m-%d"))+
+                scale_color_manual(name="Year",values = getPalette(colourCount))+
+                xlab("Day of Year")+
+                ylab("Inches")+
+                ggtitle(paste0("Daily Cumulative Precipitation "))+
+                theme_bw()+
+                theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+              # pCum <- ggplotly(pCum)
+              # temps
+              pTemps<-ggplot(tempSeas)+
+                geom_line(aes(`Day of Year`,`T-max`,color=Year, group=1,text=Date))+
+                geom_line(aes(`Day of Year`,`T-min`,color=Year, group=1,text=Date))+
+                scale_x_continuous(breaks=seq(0,nrow(tempSeas),15),
+                                   labels=format(seq.Date(tempSeas$dummyDate[1],tempSeas$dummyDate[1]+nrow(tempSeas),by="15 days"),"%m-%d"))+
+                scale_color_manual(name="Year",values = getPalette(colourCount))+
+                xlab("Day of Year")+
+                ylab("Deg F")+
+                ggtitle(paste0("Daily Min/Max Temperatures (F) "))+
+                theme_bw()+
+                theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
           
           # RENDER NAV PAGE
           library(rmarkdown)

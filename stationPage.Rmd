@@ -1,0 +1,95 @@
+---
+title: "`r markdownTitle`"
+author: ''
+date: ''
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r results='asis', echo=FALSE}
+cat(paste0("**Updated: ", noquote(format(Sys.time(), "%m-%d-%Y")),"**"))
+```
+
+This page displays the current (updated each morning) climate summaries for this station. Click on each tab to access the different summary time periods. The link below each plot provides access to historical summaries for the period of record. 
+
+## {.tabset .tabset-fade}
+
+<div align="center">
+### Water Year
+
+```{r results='asis', echo=FALSE}
+cat(plotWY)
+```
+
+<b>
+```{r results='asis', echo=FALSE}
+cat(plotWYhist)
+```
+</b>
+
+### Calendar Year
+
+```{r results='asis', echo=FALSE}
+cat(plotCal)
+```
+
+<b>
+```{r results='asis', echo=FALSE}
+cat(plotCalhist)
+```
+</b>
+
+### Cool Season
+
+```{r results='asis', echo=FALSE}
+cat(plotCool)
+```
+
+<b>
+```{r results='asis', echo=FALSE}
+cat(plotCoolhist)
+```
+</b>
+
+### Monsoon
+
+```{r results='asis', echo=FALSE}
+cat(plotMon)
+```
+
+<b>
+```{r results='asis', echo=FALSE}
+cat(plotMonhist)
+```
+</b>
+
+### Station Map
+```{r,results='asis', echo=FALSE}
+leaflet(width="100%") %>% addProviderTiles(providers$Esri.DeLorme) %>%
+  setView(stationLatLon$lon, stationLatLon$lat, zoom = 8) %>%
+  addMarkers(lng=stationLatLon$lon, lat=stationLatLon$lat, popup=stationName)
+```
+
+</div>
+
+<p>&nbsp;</p>
+
+------
+
+<div align="center">
+  <em>[Return to main page](https://cals.arizona.edu/climate/misc/stations/index.html)</em>
+</div>
+
+------
+
+<div align="center">
+  <em>[Climate Science Applications Program - University of Arizona Cooperative Extension](http://cals.arizona.edu/climate/)</em>
+</div>
+
+<div align="center">
+  <h6>
+  Last Updated: "`r format(Sys.time(), '%m-%d-%Y')`"© 2020 The Arizona Board of Regents. All contents copyrighted. All rights reserved.</h6>
+</div>
