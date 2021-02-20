@@ -157,21 +157,49 @@ stationThin<-stationThin[,c("names","lat","lon","V1","contigYr1","contigYr2")]
 
 save(stationThin, file="stationList.RData")
 
+# ADD NEW STATIONS TO EXISTING STATION LIST -----
 # manually add stations - info from https://wrcc.dri.edu/coopmap/#
 load("~/RProjects/StationPlots/stationList.RData")
+# stationThin  dataframe format
+# names - chr
+# lat - num
+# lon - num
+# V1 - chr
+# contigYr1 - num (year)
+# contigYr2 - num (year)
+
 stationThin$names<-as.character(stationThin$names)
 stationThin$V1<-as.character(stationThin$V1)
 
-  # station info
-  newrow<-c("KARTCHNER CAVERNS",31.83528,-110.35528, "024534", 2008,2020)
+  # indiv new station info
+  #newrow<-c("KARTCHNER CAVERNS",31.83528,-110.35528, "024534", 2008,2020)
   # bind to dataframe
-  stationThin<-rbind.data.frame(stationThin,newrow)
+  # stationThin<-rbind.data.frame(stationThin,newrow)
   # fix var types
-  vars<-c(2,3,5,6)
-  stationThin[ , vars] <- apply(stationThin[ , vars], 2,            # Specify own function within apply
-                      function(x) as.numeric(as.character(x)))
+  # vars<-c(2,3,5,6)
+  # stationThin[ , vars] <- apply(stationThin[ , vars], 2,            # Specify own function within apply
+  #                    function(x) as.numeric(as.character(x)))
   
+  # add from 'stations' variable, can be run without contig year calculation 
+  addStns<-stations[which(stations$names %in% c("AJO",
+                              "ALAMO DAM",
+                              "PAINTED DESERT NP",
+                              "PETRIFIED FOREST NP",
+                              "GILA HOT SPRINGS",
+                              "SAFFORD AGRICULTURAL CENTER",
+                              "CORONADO NATIONAL MEMORIAL",
+                              "DEMING MUNICIPAL AP",
+                              "GILA BEND 2SE",
+                              "SAINT JOHNS")),c("names","lat","lon","V1","beginYr","endYr")]
+  colnames(addStns)[5:6]<-c("contigYr1","contigYr2")
+    addStns$contigYr1<-as.numeric(format(addStns$contigYr1,"%Y"))
+    addStns$contigYr2<-as.numeric(format(addStns$contigYr2,"%Y"))
+    vars<-c(1,4)
+      addStns[ , vars] <- apply(addStns[ , vars], 2,            # Specify own function within apply
+                                function(x) (as.character(x)))
   
+  stationThin<-rbind.data.frame(stationThin,addStns)
+      
   # check for #, remove
   stationThin$names<-gsub("#","",stationThin$names)
   

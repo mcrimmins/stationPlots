@@ -44,7 +44,8 @@ The southwest U.S. has a unique seasonal-transition climate characterized by dis
 </div>
 <div class = "col-md-6">
 
-![](plots/plot.png)
+[![](plots/plot.png)](stn.html)
+
 </div> 
   
 <div style="margin-bottom:100px;">

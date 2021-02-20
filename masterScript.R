@@ -22,8 +22,8 @@ enso<-read.table("https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/ens
 enso$Date<-as.Date(paste0(enso$YR,"-",enso$MON,"-01"))
 
 # specify update type
-updateType<-"historic"
-#updateType<-"realtime"
+#updateType<-"historic"
+updateType<-"realtime"
 
 # Start the clock!
 ptm <- proc.time()
@@ -129,6 +129,8 @@ for(j in 1:length(seasTypes)) {
   histLinks<-paste0(dirList,"/stationHistory.html")
   histLinks<-paste0('<a href="',histLinks,'">',dirList,'</a>')
   linksDF<-cbind.data.frame(dirList,links,histLinks)
+     # fix prob with #
+     summary$Station<-gsub("#","",summary$Station)
   summary<-merge(summary, linksDF, by.x="Station", by.y="dirList")
   colnames(summary)[(ncol(summary)-1):ncol(summary)]<- c("Current Plot","Historical Plots")
   # leaflet table
@@ -190,22 +192,22 @@ for(i in 1:nrow(stationThin)){   # nrow(stationThin)
 
 #### build station access page -- ONLY NEEDED WHEN ADDING/REMOVING STATIONS
 # get station list from waterYear directory
-dirList<-list.dirs(path = paste0("/home/crimmins/RProjects/StationPlots/plots/waterYear"), full.names = FALSE, recursive = TRUE)
-  dirList<-dirList[2:length(dirList)]
-stnLinks<-paste0("stn/",dirList,".html")
-stnLinks<-paste0('<a href="',stnLinks,'">',dirList,'</a>')
-stnlinksDF<-cbind.data.frame(dirList,stnLinks)
-stnlinksDF<-merge(stationThin[,c("names","lat","lon","V1")],stnlinksDF, by.x="names",by.y="dirList")
-colnames(stnlinksDF)<-c("Station","lat","lon","Station Code","Station Page Link")
-
-render('/home/crimmins/RProjects/StationPlots/allStations.Rmd', output_file='stn.html',
-       output_dir=paste0("/home/crimmins/RProjects/StationPlots/plots/"), clean=TRUE)
+# dirList<-list.dirs(path = paste0("/home/crimmins/RProjects/StationPlots/plots/waterYear"), full.names = FALSE, recursive = TRUE)
+#   dirList<-dirList[2:length(dirList)]
+# stnLinks<-paste0("stn/",dirList,".html")
+# stnLinks<-paste0('<a href="',stnLinks,'">',dirList,'</a>')
+# stnlinksDF<-cbind.data.frame(dirList,stnLinks)
+# stnlinksDF<-merge(stationThin[,c("names","lat","lon","V1")],stnlinksDF, by.x="names",by.y="dirList")
+# colnames(stnlinksDF)<-c("Station","lat","lon","Station Code","Station Page Link")
+# 
+# render('/home/crimmins/RProjects/StationPlots/allStations.Rmd', output_file='stn.html',
+#        output_dir=paste0("/home/crimmins/RProjects/StationPlots/plots/"), clean=TRUE)
 
 ##### update home page
 
 # sample map
-#states <- map_data("state")
-# INSET MAP - OPTIONAL
+# states <- map_data("state")
+# #INSET MAP - OPTIONAL
 # sampMap<-ggplot() +
 #   geom_polygon(data = states, aes(x = long, y = lat, group = group), fill="lightgrey", color="grey")  + # get the state border back on top
 #   #coord_fixed(xlim=c(out$meta$ll[1]-zoomLev, out$meta$ll[1]+zoomLev), ylim=c(out$meta$ll[2]-zoomLev, out$meta$ll[2]+zoomLev), ratio = 1) +

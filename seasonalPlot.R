@@ -34,6 +34,8 @@ wtr_yr <- function(dates, start_month=10) {
 #perc.rank <- function(x) trunc(rank(x,ties.method = "first"))/length(x)
 #perc.rank <- function(x) (x)/sum(x, na.rm = TRUE)
 
+source("/home/crimmins/RProjects/StationPlots/rle2_function.R")
+
 # indices
 #library(rsoi)
 #library(rpdo)
@@ -221,8 +223,8 @@ colnames(waterDates)[1]<-"date"
                     precip25 =wtr_day[min(which(cumPerc>=25))],
                     precip50 =wtr_day[min(which(cumPerc>=50))],
                     precip75 =wtr_day[min(which(cumPerc>=75))],
-                    maxDrySpell = max(rle(precipDay)$lengths),
-                    avgDrySpell = mean(rle(precipDay)$lengths, na.rm = T),
+                    maxDrySpell = max(rle2(precipDay)$lengths),
+                    avgDrySpell = mean(rle2(precipDay)$lengths, na.rm = T),
                     lightRain = sum(precipNA<=quantPrecip[1], na.rm = T),
                     modRain = sum(precipNA>quantPrecip[1] & precipNA<quantPrecip[2], na.rm = T),
                     hvyRain = sum(precipNA>=quantPrecip[2], na.rm = T),
@@ -272,8 +274,8 @@ colnames(waterDates)[1]<-"date"
                     precip25 =doy[min(which(cumPerc>=25))],
                     precip50 =doy[min(which(cumPerc>=50))],
                     precip75 =doy[min(which(cumPerc>=75))],
-                    maxDrySpell = max(rle(precipDay)$lengths),
-                    avgDrySpell = mean(rle(precipDay)$lengths, na.rm = T),
+                    maxDrySpell = max(rle2(precipDay)$lengths),
+                    avgDrySpell = mean(rle2(precipDay)$lengths, na.rm = T),
                     lightRain = sum(precipNA<=quantPrecip[1], na.rm = T),
                     modRain = sum(precipNA>quantPrecip[1] & precipNA<quantPrecip[2], na.rm = T),
                     hvyRain = sum(precipNA>=quantPrecip[2], na.rm = T),
@@ -311,8 +313,10 @@ colnames(waterDates)[1]<-"date"
       # set years to plot - add in 'other' condition if using customized period
       if(type=='waterYear' & format(Sys.Date(),"%m")>=10 || type=='coolSeas' & format(Sys.Date(),"%m")>=10 ){
         last<-as.numeric(format(Sys.Date(),"%Y"))+1
+        firstFull<-beginyr+1
       }else{
         last<-as.numeric(format(Sys.Date(),"%Y"))
+        firstFull<-beginyr
       }
       # set update type from masterScript.R
       if(updateType=="historic" &&  type=='waterYear' || updateType=="historic" &&  type=='coolSeas' ){
@@ -322,6 +326,7 @@ colnames(waterDates)[1]<-"date"
       } else{
         first<-last
       }
+      yrListFull<-seq(firstFull,last,1)
       yrList<-seq(first,last,1)
       #yrList<-seq(beginyr,last,1)
       
@@ -861,12 +866,14 @@ colnames(waterDates)[1]<-"date"
       # load test data for development
       # load("~/RProjects/StationPlots/rmdHistoryData.RData")
       
-      if(updateType=="historic"){
+     # if(updateType=="historic"){
         # ONLY INCLUDE MOST RECENT COMPLETE YEAR
           tempTable<-seasSummary[,c(1,2,3,6,7,8,14,15,18,19,20)]
           colnames(tempTable)<-c( "Year", "Total Precip (in)", "Total Precip Days", "Avg Temp (F)","Freeze Days", "Total Snow (in)", "Max Dry Spell (days)", 
                                   "Avg Dry Spell (days)", "Heavy Rain Days","Missing Precip (days)","Missing Temp (days)")
-          tempTable<-tempTable[which(tempTable$Year %in% yrList[1:(length(yrList)-1)]),]
+          #tempTable<-tempTable[which(tempTable$Year %in% yrList[1:(length(yrList)-1)]),]
+          tempTable<-tempTable[which(tempTable$Year %in% yrListFull[1:(length(yrListFull))]),]
+          
           # round 
           tempTable$`Total Precip (in)`<-round(tempTable$`Total Precip (in)`,1)
           tempTable$`Avg Temp (F)`<-round(tempTable$`Avg Temp (F)`,1)
@@ -899,6 +906,8 @@ colnames(waterDates)[1]<-"date"
           # plotly cumulative plots
           # subset to tempTable years
           tempSeas<-subset(dataSeas, yearX %in%  unique(tempTable$Year))
+            # trim to present data
+            tempSeas$cumPrecip<-(ifelse(is.na(tempSeas$precip)==TRUE,NA,1))*tempSeas$cumPrecip
           tempSeas<-tempSeas[,c("yearX","doyX","cumPrecip","date","dummyDate","t_max","t_min")]
           colnames(tempSeas)<-c("Year","Day of Year","Cumulative Precip","Date","dummyDate","T-max","T-min")
           tempSeas$Year<-as.factor(tempSeas$Year)
@@ -939,9 +948,9 @@ colnames(waterDates)[1]<-"date"
           render('/home/crimmins/RProjects/StationPlots/stationHistory.Rmd', output_file='stationHistory.html',
                  output_dir=paste0(plotDir), clean=TRUE)
           
-      }else{
-            
-      }
+     # }else{
+    #        
+    #  }
   
   }
   
