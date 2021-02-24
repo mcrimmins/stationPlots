@@ -148,7 +148,7 @@ for(j in 1:length(seasTypes)) {
                 })
       
   render('/home/crimmins/RProjects/StationPlots/currentMarkdown.Rmd', output_file='current.html',
-         output_dir=paste0("/home/crimmins/RProjects/StationPlots/plots/",type), clean=TRUE)
+         output_dir=paste0("/home/crimmins/RProjects/StationPlots/plots/",type), clean=TRUE, quiet = TRUE)
   
   # links for station summary pages
   links<-paste0(dirList,"/",dirList,"_",type,"_",plotYear,".png")
@@ -156,7 +156,7 @@ for(j in 1:length(seasTypes)) {
   # history page links
   histLinks<-paste0("../",type,"/",dirList,"/stationHistory.html")
   #histLinks<-paste0('<a href="',histLinks,'">',dirList,'</a>')
-  histLinks<-paste0('<a href="',histLinks,'">',type,'- Station History </a>')
+  histLinks<-paste0('<a href="',histLinks,'">',type,'- Historical Plots and Data </a>')
   linksDF<-cbind.data.frame(dirList,links,histLinks)
   
   linkList[[j]]<-linksDF
@@ -185,13 +185,13 @@ for(i in 1:nrow(stationThin)){   # nrow(stationThin)
     
     
     render('/home/crimmins/RProjects/StationPlots/stationPage.Rmd', output_file=paste0(stationName,'.html'),
-           output_dir=paste0("/home/crimmins/RProjects/StationPlots/plots/stn/"), clean=TRUE)
+           output_dir=paste0("/home/crimmins/RProjects/StationPlots/plots/stn/"), clean=TRUE, quiet = TRUE)
     
 }
 
 
 #### build station access page -- ONLY NEEDED WHEN ADDING/REMOVING STATIONS
-# get station list from waterYear directory
+#get station list from waterYear directory
 # dirList<-list.dirs(path = paste0("/home/crimmins/RProjects/StationPlots/plots/waterYear"), full.names = FALSE, recursive = TRUE)
 #   dirList<-dirList[2:length(dirList)]
 # stnLinks<-paste0("stn/",dirList,".html")

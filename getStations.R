@@ -181,16 +181,7 @@ stationThin$V1<-as.character(stationThin$V1)
   #                    function(x) as.numeric(as.character(x)))
   
   # add from 'stations' variable, can be run without contig year calculation 
-  addStns<-stations[which(stations$names %in% c("AJO",
-                              "ALAMO DAM",
-                              "PAINTED DESERT NP",
-                              "PETRIFIED FOREST NP",
-                              "GILA HOT SPRINGS",
-                              "SAFFORD AGRICULTURAL CENTER",
-                              "CORONADO NATIONAL MEMORIAL",
-                              "DEMING MUNICIPAL AP",
-                              "GILA BEND 2SE",
-                              "SAINT JOHNS")),c("names","lat","lon","V1","beginYr","endYr")]
+  addStns<-stations[which(stations$names %in% c("Kingman Area")),c("names","lat","lon","V1","beginYr","endYr")]
   colnames(addStns)[5:6]<-c("contigYr1","contigYr2")
     addStns$contigYr1<-as.numeric(format(addStns$contigYr1,"%Y"))
     addStns$contigYr2<-as.numeric(format(addStns$contigYr2,"%Y"))

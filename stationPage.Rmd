@@ -24,11 +24,11 @@ This page displays the current (updated each morning) climate summaries for this
 cat(plotWY)
 ```
 
-<b>
+<b><p style="font-size:20px">
 ```{r results='asis', echo=FALSE}
 cat(plotWYhist)
 ```
-</b>
+</b></p>
 
 ### Calendar Year
 
@@ -36,11 +36,11 @@ cat(plotWYhist)
 cat(plotCal)
 ```
 
-<b>
+<b><p style="font-size:20px">
 ```{r results='asis', echo=FALSE}
 cat(plotCalhist)
 ```
-</b>
+</b></p>
 
 ### Cool Season
 
@@ -48,11 +48,11 @@ cat(plotCalhist)
 cat(plotCool)
 ```
 
-<b>
+<b><p style="font-size:20px">
 ```{r results='asis', echo=FALSE}
 cat(plotCoolhist)
 ```
-</b>
+</b></p>
 
 ### Monsoon
 
@@ -60,11 +60,11 @@ cat(plotCoolhist)
 cat(plotMon)
 ```
 
-<b>
+<b><p style="font-size:20px">
 ```{r results='asis', echo=FALSE}
 cat(plotMonhist)
 ```
-</b>
+</b></p>
 
 ### Station Map
 ```{r,results='asis', echo=FALSE}

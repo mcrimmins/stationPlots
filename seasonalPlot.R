@@ -47,13 +47,34 @@ source("/home/crimmins/RProjects/StationPlots/rle2_function.R")
 states <- map_data("state")
 # -----
 
+out <- NULL
 # download data in JSON format and convert - extend 
 #stationID<- "USW00023104" #"028820", Flagstaff 023010 phoenix 026481
 #stationID <- "028468 2"
 jsonQuery=paste0('{"sid":"',stationID,'","meta":"name,ll,elev","sdate":"por","edate":"',endDate,'","elems":"1,2,43,4,10,11"}') # sid = station id, 029439=Winslow, arizona
-out<-postForm("http://data.rcc-acis.org/StnData", 
-              .opts = list(postfields = jsonQuery, 
-                           httpheader = c('Content-Type' = 'application/json', Accept = 'application/json')))
+
+# out<-postForm("http://data.rcc-acis.org/StnData",
+#               .opts = list(postfields = jsonQuery,
+#                            httpheader = c('Content-Type' = 'application/json', Accept = 'application/json')))
+
+# try again for timeouts
+attempt <- 1
+while( is.null(out) && attempt <= 3 ) {
+  try(
+    out<-postForm("http://data.rcc-acis.org/StnData", 
+                  .opts = list(postfields = jsonQuery, 
+                               httpheader = c('Content-Type' = 'application/json', Accept = 'application/json')))
+  )
+  if(is.null(out)){
+    print(paste0("Download attempt #: ",attempt))
+    attempt <- attempt + 1
+    Sys.sleep(30)
+  }
+} 
+
+
+
+# extract from JSON
 out<-fromJSON(out)
 
 
@@ -897,7 +918,7 @@ colnames(waterDates)[1]<-"date"
           tempAnom<-cbind.data.frame(tempTable$Year,tempAnom)
           colnames(tempAnom)[1]<-"Year"
           # column means
-          tempMean<-as.data.frame(t(round(colMeans(tempTable[,2:9]),1)))
+          tempMean<-as.data.frame(t(round(colMeans(tempTable[,2:9], na.rm = TRUE),1)))
           
           # station info
           markdownTitle<-paste0(titleType," Station Climate Summaries: ", stationName)
@@ -946,7 +967,7 @@ colnames(waterDates)[1]<-"date"
           library(knitr)
           
           render('/home/crimmins/RProjects/StationPlots/stationHistory.Rmd', output_file='stationHistory.html',
-                 output_dir=paste0(plotDir), clean=TRUE)
+                 output_dir=paste0(plotDir), clean=TRUE, quiet=TRUE)
           
      # }else{
     #        
