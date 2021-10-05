@@ -34,7 +34,9 @@ cat(paste0(' <span style="color:red"> <font size="4"> Summary period: ', format(
 
 ```{r,results='asis', echo=FALSE}
 library(DT)
-datatable(summary, class = 'cell-border compact stripe', escape = FALSE, rownames = FALSE)
+datatable(summary, class = 'cell-border compact stripe', escape = FALSE, rownames = FALSE,
+          options = list(pageLength = 10, info = FALSE, lengthMenu = list(c(-1,10,50,100), c("All","10","50","100"))),
+          filter = list(position = 'top', clear = TRUE))
 ```
 
 <div align="center">

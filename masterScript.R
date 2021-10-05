@@ -29,7 +29,7 @@ updateType<-"realtime"
 ptm <- proc.time()
 
     # loop through station
-    for(i in 1:nrow(stationThin)){   # nrow(stationThin)
+for(i in 1:nrow(stationThin)){   # nrow(stationThin)
       # get station info 
       stationID<-stationThin$V1[i]
       stationLatLon<-stationThin[i,c("lat","lon")]
@@ -51,6 +51,7 @@ proc.time() - ptm
 # the seasType loop could be put inside seasonalPlot.R to download data only once
 seasTypes<-c("waterYear","calYear","monsoon","coolSeas")
 linkList<-list()
+currMo<-as.numeric(format(Sys.Date(),"%m"))
 for(j in 1:length(seasTypes)) {
   type<-seasTypes[j]
   # switches for vars
@@ -59,36 +60,65 @@ for(j in 1:length(seasTypes)) {
     seas2mo<-9; seas2dy<-30
     titleType<-"Water Year"
     titleCol<-"orangered4"
+      # year switch
+      if((currMo >= 1) & (currMo <= 9)){
+        year1<-as.numeric(format(Sys.Date(),"%Y"))-1
+        year2<-as.numeric(format(Sys.Date(),"%Y"))
+      } else {
+        year1<-as.numeric(format(Sys.Date(),"%Y"))
+        year2<-as.numeric(format(Sys.Date(),"%Y"))+1 # 
+      }
   } else if ( type=="calYear") {
     seas1mo<-1; seas1dy<-1
     seas2mo<-12; seas2dy<-31
     titleType<-"Calendar Year"
     titleCol<-"navyblue"
+      # year switch
+        year1<-as.numeric(format(Sys.Date(),"%Y"))
+        year2<-as.numeric(format(Sys.Date(),"%Y")) # add +1 ? need to keep cal/monsoon to curr or prev year
   } else if ( type=="monsoon") {
     seas1mo<-6; seas1dy<-15
     seas2mo<-9; seas2dy<-30
     titleType<-"Monsoon Season"
     titleCol<-"red1"
+      # year switch
+      if(((currMo >= 1) & (currMo <= 5))){
+        year1<-as.numeric(format(Sys.Date(),"%Y"))-1
+        year2<-as.numeric(format(Sys.Date(),"%Y"))-1
+      } else {
+        year1<-as.numeric(format(Sys.Date(),"%Y"))
+        year2<-as.numeric(format(Sys.Date(),"%Y")) # add +1 ? need to keep cal/monsoon to curr or prev year
+      }
   } else if ( type=="coolSeas"){
     seas1mo<-10; seas1dy<-1
     seas2mo<-6; seas2dy<-14
     titleType<-"Cool Season"
     titleCol<-"royalblue4"
+      # year switch
+      if((currMo >= 1) & (currMo <= 9)){
+        year1<-as.numeric(format(Sys.Date(),"%Y"))-1
+        year2<-as.numeric(format(Sys.Date(),"%Y"))
+      } else {
+        year1<-as.numeric(format(Sys.Date(),"%Y"))
+        year2<-as.numeric(format(Sys.Date(),"%Y"))+1 # add +1 ? need to keep cal/monsoon to curr or prev year
+      }
     # add in 'other' customized time period here  
   }
   print(type)
 
   # build and update the current values page
   sidString<-paste(stationThin$V1, collapse=",")
-
-  currMo<-as.numeric(format(Sys.Date(),"%m"))
-    if((seas1mo>seas2mo)& ((currMo >= 1) & (currMo <= 9))){
-      year1<-as.numeric(format(Sys.Date(),"%Y"))-1
-      year2<-as.numeric(format(Sys.Date(),"%Y"))
-    } else {
-      year1<-as.numeric(format(Sys.Date(),"%Y"))
-      year2<-as.numeric(format(Sys.Date(),"%Y"))
-    }
+  
+  # # year switch
+  # currMo<-as.numeric(format(Sys.Date(),"%m"))
+  #   if((seas1mo>seas2mo)& ((currMo >= 1) & (currMo <= 9))){
+  #     year1<-as.numeric(format(Sys.Date(),"%Y"))-1
+  #     year2<-as.numeric(format(Sys.Date(),"%Y"))
+  #   } else {
+  #     year1<-as.numeric(format(Sys.Date(),"%Y"))
+  #     year2<-as.numeric(format(Sys.Date(),"%Y")) # add +1 ? need to keep cal/monsoon to curr or prev year
+  #   }
+  
   # create download date
   Date1<-paste0(year1,"-",seas1mo,"-",seas1dy)
   Date2<-format(Sys.Date(),"%Y-%m-%d")
@@ -133,6 +163,11 @@ for(j in 1:length(seasTypes)) {
      summary$Station<-gsub("#","",summary$Station)
   summary<-merge(summary, linksDF, by.x="Station", by.y="dirList")
   colnames(summary)[(ncol(summary)-1):ncol(summary)]<- c("Current Plot","Historical Plots")
+  # change data type in cols
+  cols = c(2,3,4,5,6,8,9);    
+  summary[,cols] = apply(summary[,cols], 2, function(x) as.numeric(as.character(x)));
+  summary$`Max Precip Date`<-as.Date(summary$`Max Precip Date`)
+  
   # leaflet table
   leafletTable<-merge(stationThin, summary, by.x="names",by.y = "Station")
     # color pal for map

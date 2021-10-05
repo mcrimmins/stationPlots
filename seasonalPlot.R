@@ -619,7 +619,8 @@ colnames(waterDates)[1]<-"date"
         precipBar<-  ggplot(subset(seasSummary, yearX %in% currYear))+
                       geom_bar(aes(1,totalPrecip), stat = "identity", fill="dodgerblue", color="black")+
                       geom_hline(yintercept = seasMeans[2], color="red")+
-                      scale_y_continuous(limits=c(0,seasMeans[2]*2), expand = c(0, 0))+
+                      #scale_y_continuous(limits=c(0,seasMeans[2]*2), expand = c(0, 0))+
+                      coord_cartesian(ylim=c(0,seasMeans[2]*2),expand = c(0, 0))+  # added on 10/5/2021 to deal with very wet years
                       theme_bw()+
                       theme(text = element_text(size=9),
                             legend.position = "none",
@@ -730,7 +731,10 @@ colnames(waterDates)[1]<-"date"
         
         # Station Info text block
           # get temp and precip rankings - revisit ties
-          temp<-subset(seasSummary, tmeanNA<=30)
+          # temp<-subset(seasSummary, tmeanNA<=30) # filter out incomplete years?
+            temp<-seasSummary
+            # clip off last year
+            temp<-temp[1:(nrow(temp)-1),]
             temp$pRank<-rank(temp$totalPrecip)
             temp$tRank<-rank(temp$meanTmean)
           pRank<-((max(temp$yearX)-min(temp$yearX))+1)-(temp$pRank[which(temp$yearX==currYear)]-1)
@@ -751,7 +755,7 @@ colnames(waterDates)[1]<-"date"
                                fontface="bold",hjust=0, size=3.5)+
                       annotate("text", x=0, y=-1, label=paste0("Elevation (ft): ", out$meta$elev),hjust=0, size=3.5)+
                       annotate("text", x=0, y=-1.5, label=paste0("Period of record: ", min(temp$yearX),"-",max(temp$yearX)), hjust=0, size=3.5)+
-                      annotate("text", x=0, y=-2, label=paste0("Years in record: ", (max(temp$yearX)-min(temp$yearX))+1), hjust=0, size=3.5)+
+                      annotate("text", x=0, y=-2, label=paste0("Years in record: ", ((max(temp$yearX))-min(temp$yearX))+1), hjust=0, size=3.5)+
                       annotate("text", x=0, y=-2.5, label=paste0("Precip rank: ", pRank, " (1-wettest)"), hjust=0, size=3.5)+
                       annotate("text", x=0, y=-3, label=paste0("Temp rank: ", tRank, " (1-warmest)"), hjust=0, size=3.5)+
                       annotate("text", x=0, y=-3.5, label=paste0("Missing in ",currYear,": ", seasSummary$precipNA[which(seasSummary$yearX==currYear)] ), hjust=0, size=3.5)+
@@ -932,7 +936,22 @@ colnames(waterDates)[1]<-"date"
           tempSeas<-tempSeas[,c("yearX","doyX","cumPrecip","date","dummyDate","t_max","t_min")]
           colnames(tempSeas)<-c("Year","Day of Year","Cumulative Precip","Date","dummyDate","T-max","T-min")
           tempSeas$Year<-as.factor(tempSeas$Year)
+            tempSeas$Date<-format(tempSeas$Date, "%b-%d")
           
+          # get averages
+          seasAverage<- tempSeas %>%
+                        group_by(`Day of Year`) %>%
+                                summarize(`Year` = first(Year),
+                                          `Day of Year` = min(`Day of Year`, na.rm = TRUE),
+                                          `Cumulative Precip`=mean(`Cumulative Precip`, na.rm=TRUE),
+                                          `Date` = min(`Date`, na.rm = TRUE),
+                                          `dummyDate` = min(`dummyDate`, na.rm = TRUE),
+                                          `T-max` = mean(`T-max`, na.rm=TRUE),
+                                          `T-min` = mean(`T-min`, na.rm=TRUE))
+          seasAverage$Year<-"Average"
+          tempSeas<-rbind.data.frame(tempSeas,seasAverage)
+          # fix dummy date to just m/d
+                    
             # color ramp
             library(RColorBrewer)
             colourCount = length(unique(tempSeas$Year))
@@ -948,6 +967,8 @@ colnames(waterDates)[1]<-"date"
                 ggtitle(paste0("Daily Cumulative Precipitation "))+
                 theme_bw()+
                 theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+       
+              
               # pCum <- ggplotly(pCum)
               # temps
               pTemps<-ggplot(tempSeas)+

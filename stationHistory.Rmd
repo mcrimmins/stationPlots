@@ -69,12 +69,14 @@ kable(tempMean, caption="Period of Record Averages")
 <div align="center">
 ### Summary Stats
 ```{r,results='asis', echo=FALSE}
-datatable(tempTable, class = 'cell-border compact stripe', escape = FALSE, rownames = FALSE)
+datatable(tempTable, class = 'cell-border compact stripe', escape = FALSE, rownames = FALSE,
+          options = list(pageLength = 10, info = FALSE, lengthMenu = list(c(-1,10,50,100), c("All","10","50","100"))))
 ```
 
 ### Anomalies
 ```{r,results='asis', echo=FALSE}
-datatable(tempAnom, class = 'cell-border compact stripe', escape = FALSE, rownames = FALSE)
+datatable(tempAnom, class = 'cell-border compact stripe', escape = FALSE, rownames = FALSE,
+           options = list(pageLength = 10, info = FALSE, lengthMenu = list(c(-1,10,50,100), c("All","10","50","100"))))
 ```
 
 </div>
