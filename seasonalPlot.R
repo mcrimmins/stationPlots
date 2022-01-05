@@ -215,10 +215,16 @@ colnames(waterDates)[1]<-"date"
           summarise(meanCumPrecip = mean(cumPrecip, na.rm = T))
         # similar years matrix
         precipMatrix<-dataSeas[,c("wtr_day","waterYear","cumPrecip")]
-        # set missing years to NA
+        
+        # precipMatrix<-dataSeas[,c("wtr_day","waterYear","cumPrecip","precipNA")]
+        #   precipMatrix$precipNA<-ifelse(is.na(precipMatrix$precipNA)==FALSE, 1, NA)
+        #   precipMatrix$cumPrecip<-precipMatrix$cumPrecip*precipMatrix$precipNA
+        #   precipMatrix<-precipMatrix[,c(1:3)]
+          
+        # set missing years to NA...coded differently for CalYear
         missYrs$year<-missYrs$year+1 # adjust to water year match
-        precipMatrix$cumPrecip[precipMatrix$waterYear %in% (missYrs[which(is.na(missYrs$missNA)==TRUE),1]$year)]<-NA
-        precipMatrix<-t(spread(precipMatrix, key = wtr_day,value = cumPrecip))
+          precipMatrix$cumPrecip[precipMatrix$waterYear %in% (missYrs[which(is.na(missYrs$missNA)==TRUE),1]$year)]<-NA
+          precipMatrix<-t(spread(precipMatrix, key = wtr_day,value = cumPrecip))
         # doy/year for plots
         dataSeas$doyX<-dataSeas$wtr_day
         dataSeas$yearX<-dataSeas$waterYear
@@ -274,9 +280,13 @@ colnames(waterDates)[1]<-"date"
           summarise(meanCumPrecip = mean(cumPrecip, na.rm = T))
         # similar years matrix
         precipMatrix<-dataSeas[,c("doy","year","cumPrecip")]
-          # set missing years to NA
-          precipMatrix$cumPrecip[precipMatrix$year %in% (missYrs[which(is.na(missYrs$missNA)==TRUE),1]$year)]<-NA
+          # set missing years to NA, except currYr
+          missYrPrcp<-missYrs[which(is.na(missYrs$missNA)==TRUE),1]$year
+            missYrPrcp <- missYrPrcp[! missYrPrcp %in% as.numeric(format(Sys.Date(),"%Y"))]
+            precipMatrix$cumPrecip[precipMatrix$year %in% missYrPrcp]<-NA
+          #precipMatrix$cumPrecip[precipMatrix$year %in% (missYrs[which(is.na(missYrs$missNA)==TRUE),1]$year)]<-NA
           precipMatrix<-t(spread(precipMatrix, key = doy,value = cumPrecip))
+          
         # doy/year for plots
         dataSeas$doyX<-dataSeas$doy
         dataSeas$yearX<-dataSeas$year
@@ -471,12 +481,28 @@ colnames(waterDates)[1]<-"date"
         #corrYears<-cor(precipMatrix[2:nrow(precipMatrix),], method = "pearson", use = "pairwise.complete.obs")
         #corrYears<-cov(precipMatrix[2:nrow(precipMatrix),], method = "pearson", use = "pairwise.complete.obs")
           
-          corrYears<-as.matrix(stats::dist(t(precipMatrix[2:nrow(precipMatrix),]), method = "euclidean"))
+          # limit to current observed date range
+         if(length(which(!is.na(currYearData$precip)))==0){
+            endRow<-nrow(currYearData) 
+         } else { 
+            endRow<-max(which(!is.na(currYearData$precip)))
+         }
+          
+          # fix if endRow is one, will break corrs -- added 1/4/2022 for New Year bug
+          endRow<-ifelse(endRow==1, endRow+1, endRow)
+          
+          corrYears<-as.matrix(stats::dist(t(precipMatrix[2:(endRow+1),]), method = "euclidean"))
+          # old method, all days
+          #corrYears<-as.matrix(stats::dist(t(precipMatrix[2:nrow(precipMatrix),]), method = "euclidean"))
           topYears<-(cbind(corrYears[which(precipMatrix[1,]==currYear),],precipMatrix[1,]))
           topYears<-topYears[order(topYears[,1], decreasing = FALSE),]
           topYears<-topYears[1:3,2]
         # plot top 3 years
-        pTop3<-  ggplot(subset(dataSeas, yearX %in% topYears)) + 
+          tempTop<-subset(dataSeas, yearX %in% topYears)
+          tempTop$pptFlag<-ifelse(is.na(tempTop$precip)==FALSE, 1, NA)
+          tempTop$cumPrecip<-tempTop$cumPrecip*tempTop$pptFlag
+          
+        pTop3<-  ggplot(tempTop) + 
             geom_step(aes(dummyDate, cumPrecip, color=as.factor(yearX)))+
             scale_color_brewer(palette = "Set1")+
             scale_x_date(date_labels = "%b", date_breaks = "1 month", expand = c(0, 0))+
