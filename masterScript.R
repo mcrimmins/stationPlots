@@ -166,6 +166,8 @@ for(j in 1:length(seasTypes)) {
   # change data type in cols
   cols = c(2,3,4,5,6,8,9);    
   summary[,cols] = apply(summary[,cols], 2, function(x) as.numeric(as.character(x)));
+  # replace Ms if present in MAX date column
+  summary$`Max Precip Date`[summary$`Max Precip Date` == "M"] <- NA
   summary$`Max Precip Date`<-as.Date(summary$`Max Precip Date`)
   
   # leaflet table
