@@ -131,6 +131,13 @@ for(j in 1:length(seasTypes)) {
     plotYear<-(year2-1)
   }else{}
 
+  #####
+  # if just past monsoon season, end at current season... ADDED 10/26/22
+  if(type=="monsoon" & (currMo >= 10) & (currMo <= 12)){
+    Date2<-paste0(year1,"-",seas2mo,"-",seas2dy)
+  }
+  #####
+  
   jsonQuery=paste0('{"sids":"',sidString,'","sdate":"',Date1,'","edate":"',Date2,'","elems":[{"name":"pcpn","interval":"dly","duration":1,"smry":{"add":"mcnt","reduce":"sum"},"smry_only":"1"},{"name":"pcpn","interval":"dly","duration":1,"smry":{"add":"mcnt","reduce":"sum"},"smry_only":"1","normal":"departure"},{"name":"pcpn","interval":"dly","duration":1,"smry":{"add":"date","reduce":"max"},"smry_only":"1"},{"name":"avgt","interval":"dly","duration":1,"smry":{"add":"mcnt","reduce":"mean"},"smry_only":"1"},{"name":"avgt","interval":"dly","duration":1,"smry":{"add":"mcnt","reduce":"mean"},"smry_only":"1","normal":"departure"}]}')
 
   out<-postForm("http://data.rcc-acis.org/MultiStnData",

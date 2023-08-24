@@ -137,7 +137,7 @@ colnames(waterDates)[1]<-"date"
   colnames(data)<-c("date","t_max","t_min","t_mean","precip","snow","snowD")
   data$date<-as.Date(as.character(data$date))
   # replace T trace values
-  data$precip<-recode(data$precip, "T" = "0.001")
+  data$precip<-recode(data$precip, "T" = "0.00") # changed from 0.001 to 0.00 on 10/26/22
   # convert columns to numeric
   unfactorize<-c("t_max","t_min","t_mean","precip","snow","snowD")
   data[,unfactorize]<-lapply(unfactorize, function(x) as.numeric(as.character(data[,x])))
