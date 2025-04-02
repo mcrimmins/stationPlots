@@ -68,7 +68,7 @@ cat(plotMonhist)
 
 ### Station Map
 ```{r,results='asis', echo=FALSE}
-leaflet(width="100%") %>% addProviderTiles(providers$Esri.DeLorme) %>%
+leaflet(width="100%") %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
   setView(stationLatLon$lon, stationLatLon$lat, zoom = 8) %>%
   addMarkers(lng=stationLatLon$lon, lat=stationLatLon$lat, popup=stationName)
 ```

@@ -14,7 +14,8 @@ library(htmltools)
 load("/home/crimmins/RProjects/StationPlots/stationList.RData")
 
 # DEAL WITH PANDOC ERROR
-Sys.setenv(RSTUDIO_PANDOC="/usr/lib/rstudio-server/bin/pandoc")
+#Sys.setenv(RSTUDIO_PANDOC="/usr/lib/rstudio-server/bin/pandoc")
+Sys.setenv(RSTUDIO_PANDOC="/usr/bin/pandoc")
 
 ##### 
 # Get ENSO data directly
@@ -285,7 +286,7 @@ render('/home/crimmins/RProjects/StationPlots/homePage.Rmd', output_file='index.
 ptm <- proc.time() - ptm
 ptm <- round((ptm[3])/60,1)
 # push notification of completion
-source('/home/crimmins/RProjects/StationPlots/pushNotify.R')
+#source('/home/crimmins/RProjects/StationPlots/pushNotify.R')
 print("update completed")
 print(ptm)
 

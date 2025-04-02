@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r,results='asis', echo=FALSE}
-leaflet(width="100%") %>% addProviderTiles(providers$Esri.DeLorme, options = providerTileOptions(minZoom = 6)) %>%
+leaflet(width="100%") %>% addProviderTiles(providers$Esri.WorldTopoMap, options = providerTileOptions(minZoom = 6)) %>%
   #addMarkers(lng=stationThin$lon, lat=stationThin$lat, popup=stationThin$names,
   #           labelOptions = labelOptions(noHide = T))
   addMarkers(stnlinksDF$lon, stnlinksDF$lat, popup = stnlinksDF$`Station Page Link`,

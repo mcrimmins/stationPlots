@@ -72,8 +72,6 @@ while( is.null(out) && attempt <= 3 ) {
   }
 } 
 
-
-
 # extract from JSON
 out<-fromJSON(out)
 
@@ -131,7 +129,6 @@ colnames(waterDates)[1]<-"date"
   seas1doy_wtr<-waterDates[which(waterDates$month==seas1mo & waterDates$day==seas1dy),7] 
   seas2doy_wtr<-waterDates[which(waterDates$month==seas2mo & waterDates$day==seas2dy),7]
   
-
 # wrangle data - get data from list
   data<-data.frame(out$data)
   colnames(data)<-c("date","t_max","t_min","t_mean","precip","snow","snowD")
@@ -646,7 +643,9 @@ colnames(waterDates)[1]<-"date"
                       geom_bar(aes(1,totalPrecip), stat = "identity", fill="dodgerblue", color="black")+
                       geom_hline(yintercept = seasMeans[2], color="red")+
                       #scale_y_continuous(limits=c(0,seasMeans[2]*2), expand = c(0, 0))+
-                      coord_cartesian(ylim=c(0,seasMeans[2]*2),expand = c(0, 0))+  # added on 10/5/2021 to deal with very wet years
+                      #coord_cartesian(ylim=c(0,seasMeans[2]*2),expand = c(0, 0))+  # added on 10/5/2021 to deal with very wet years
+                      scale_y_continuous(limits = c(0, seasMeans[2]*2), expand = c(0, 0)) + # added to fix expand error 4/2/25
+                      scale_x_discrete(expand = c(0, 0)) + # added to fix expand error 4/2/25
                       theme_bw()+
                       theme(text = element_text(size=9),
                             legend.position = "none",
@@ -665,7 +664,8 @@ colnames(waterDates)[1]<-"date"
         raindayBar<-  ggplot(subset(seasSummary, yearX %in% currYear))+
                       geom_bar(aes(1,totalRainDays), stat = "identity", fill="green", color="black")+
                       geom_hline(yintercept = seasMeans[3], color="red")+
-                      scale_y_continuous(limits=c(0,seasMeans[3]*2), expand = c(0, 0))+          
+                      scale_y_continuous(limits=c(0,seasMeans[3]*2), expand = c(0, 0))+
+                      scale_x_discrete(expand = c(0, 0))+ 
                       theme_bw()+
                       theme(text = element_text(size=9),
                             legend.position = "none",
@@ -685,6 +685,7 @@ colnames(waterDates)[1]<-"date"
                         geom_bar(aes(1,totalPrecip/totalRainDays), stat = "identity", fill="yellow", color="black")+
                         geom_hline(yintercept =  seasMeans[2]/seasMeans[3], color="red")+
                         scale_y_continuous(limits=c(0,((seasMeans[2]/seasMeans[3])*2)), expand = c(0, 0))+
+                        scale_x_discrete(expand = c(0, 0))+
                         theme_bw()+
                         theme(text = element_text(size=9),
                               legend.position = "none",
@@ -895,7 +896,7 @@ colnames(waterDates)[1]<-"date"
           plot <- image_read(plotFileName)
           # And bring in a logo
           #logo_raw <- image_read("./logos/UA_CLIMAS_logos.png") 
-          logo_raw <- image_read("/home/crimmins/RProjects/ClimPlot/logos/UA_CSAP_CLIMAS_logos_horiz.png") 
+          logo_raw <- image_read("/home/crimmins/RProjects/logos/UA_CSAP_CLIMAS_logos_horiz.png") 
           logo <- image_resize(logo_raw, geometry_size_percent(width=95,height = 95))
           # Stack them on top of each other
           #final_plot <- image_append((c(plot, logo)), stack = TRUE)
