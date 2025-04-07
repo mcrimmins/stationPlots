@@ -76,6 +76,9 @@ while( is.null(out) && attempt <= 3 ) {
 out<-fromJSON(out)
 
 
+#library(profvis)
+#profvis({
+
 ##### ADD IN SEAS TYPE LOOP HERE
 # specify season
 # water year
@@ -1017,10 +1020,12 @@ colnames(waterDates)[1]<-"date"
           render('/home/crimmins/RProjects/StationPlots/stationHistory.Rmd', output_file='stationHistory.html',
                  output_dir=paste0(plotDir), clean=TRUE, quiet=TRUE)
           
+          gc()
+          
      # }else{
     #        
     #  }
   
   }
   
-  
+#}) ### profvis
